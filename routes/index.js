@@ -5,16 +5,20 @@ var router = express.Router();
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const STATS_ITERATOR = 26;
 function extractStats(jsonStats, numberOfSeasons){
-  console.log(numberOfSeasons);
+  //console.log(numberOfSeasons);
   var stats = new Array(nbaStats);
-  var nummy = 0;
+
   for(var i = 0; i < numberOfSeasons; i++) {
-    for (var k = 0; k < STATS_ITERATOR; k++) {
-      //console.log(k);
-      stats[i][k] = jsonStats['resultSets'][0]['rowSet'][i][k];
-        console.log(stats[i][nummy]);
+    var nummy = 0;
+    for (var k in nbaStats) {
+   //   console.log(k);
+      nbaStats[k] = jsonStats['resultSets'][0]['rowSet'][i][nummy];
+       // console.log(nbaStats.playerId);
       nummy++;
     }
+    stats[i] = nbaStats;
+
+    console.log(stats[i]);
   }
 }
 
@@ -25,6 +29,7 @@ var nbaStats= {
   leagueId: "",
   teamId: "",
   teamAbrv:"",
+  playerAge:"",
   gamesPlayed: "",
   gamesStarted: "",
   minutes: "",
@@ -53,7 +58,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/nba', function(req, res, next) {
-  var url = "http://stats.nba.com/stats/playercareerstats?LeagueID=00&PerMode=PerGame&PlayerID=202331";
+  var url = "http://stats.nba.com/stats/playercareerstats?LeagueID=00&PerMode=PerGame&PlayerID="+req.query.playerId;
   var xhr = new XMLHttpRequest();
   var numberOfSeasons = 0;
   xhr.responseType = 'json';
@@ -64,9 +69,10 @@ router.get('/nba', function(req, res, next) {
   // var jsony = JSON.stringify(data);
   var jsonResponse = JSON.parse(data);
 numberOfSeasons = jsonResponse['resultSets'][0]['rowSet'].length;
- console.log(jsonResponse['resultSets'][0]['rowSet'][0][0]);
+ //console.log(jsonResponse['resultSets'][0]['rowSet'][0][0]);
 
 extractStats(jsonResponse, numberOfSeasons);
+  res.send('hello');
   res.render('index', { title: 'Express' });
 
 
