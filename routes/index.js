@@ -1,8 +1,9 @@
 var express = require('express');
-
+var Stats = require('../public/Scripts/NbaStats.js')
 var request = require('request');
 var router = express.Router();
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+
 const STATS_ITERATOR = 26;
 function extractStats(jsonStats, numberOfSeasons){
   //console.log(numberOfSeasons);
@@ -58,6 +59,9 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/nba', function(req, res, next) {
+  var statsy = new Stats(req.query.playerId);
+  statsy.findStats();
+  /*
   var url = "http://stats.nba.com/stats/playercareerstats?LeagueID=00&PerMode=PerGame&PlayerID="+req.query.playerId;
   var xhr = new XMLHttpRequest();
   var numberOfSeasons = 0;
@@ -71,7 +75,7 @@ router.get('/nba', function(req, res, next) {
 numberOfSeasons = jsonResponse['resultSets'][0]['rowSet'].length;
  //console.log(jsonResponse['resultSets'][0]['rowSet'][0][0]);
 
-extractStats(jsonResponse, numberOfSeasons);
+extractStats(jsonResponse, numberOfSeasons);*/
   res.send('hello');
   res.render('index', { title: 'Express' });
 
