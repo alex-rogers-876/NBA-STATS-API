@@ -6,14 +6,13 @@ var express = require('express');
 var request = require('request');
 var router = express.Router();
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+
 function NbaStats(playerId){
     this.playerId = playerId;
     this.jsonResponse = null;
     this.numberOfSeasons = null;
-
-}
-
-NbaStats.prototype.findStats = function(){
+    this.seasonList = new Array();
+    this.statsList = new Array(nbaStats);
 
     var url = "http://stats.nba.com/stats/playercareerstats?LeagueID=00&PerMode=PerGame&PlayerID="+this.playerId;
     var xhr = new XMLHttpRequest();
@@ -27,28 +26,70 @@ NbaStats.prototype.findStats = function(){
 
     //console.log(jsonResponse['resultSets'][0]['rowSet'][0][0]);
 
-    extractStats(this.jsonResponse, this.numberOfSeasons);
-}
-NbaStats.prototype.findStatsSpecificSeason = function(season){
+    this.statsList= extractStats(this.jsonResponse, this.numberOfSeasons) ;
+    this.seasonList = buildListOfSeasons(this.statsList, this.numberOfSeasons);
+    console.log(this.seasonList);
 
+}
+
+NbaStats.prototype.initializeStats = function(){
+/*
+    var url = "http://stats.nba.com/stats/playercareerstats?LeagueID=00&PerMode=PerGame&PlayerID="+this.playerId;
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.open('GET', url, false);
+    xhr.send(null);
+    var data = xhr.responseText;
+    // var jsony = JSON.stringify(data);
+    this.jsonResponse = JSON.parse(data);
+    this.numberOfSeasons = this.jsonResponse['resultSets'][0]['rowSet'].length;
+
+    //console.log(jsonResponse['resultSets'][0]['rowSet'][0][0]);
+
+   this.statsList= extractStats(this.jsonResponse, this.numberOfSeasons) ;
+    this.seasonList = buildListOfSeasons(this.statsList);
+    console.log(this.seasonList);
+*/
+}
+NbaStats.prototype.getAllStats = function(){
+    return this.statsList;
+}
+
+NbaStats.prototype.findStatsSpecificSeason = function(season){
+    console.log(this.statsList[season]);
+    return this.statsList[season];
+}
+
+NbaStats.prototype.getSeasonList = function(){
+    return this.seasonList;
 }
 
 function extractStats(jsonStats, numberOfSeasons){
+    var statsyList = new Array(nbaStats);
     //console.log(numberOfSeasons);
-    var stats = new Array(nbaStats);
-
     for(var i = 0; i < numberOfSeasons; i++) {
+        var nbaStatsy = { };
         var nummy = 0;
         for (var k in nbaStats) {
             //   console.log(k);
-            nbaStats[k] = jsonStats['resultSets'][0]['rowSet'][i][nummy];
+            nbaStatsy[k] = jsonStats['resultSets'][0]['rowSet'][i][nummy];
             // console.log(nbaStats.playerId);
             nummy++;
         }
-        stats[i] = nbaStats;
-
-        console.log(stats[i]);
+        //this.seasonList[i]
+        statsyList[i] = nbaStatsy;
+       // this.seasonList[i] = nbaStats.seasonId;
+       // console.log(this.statsList[i]);
     }
+        return statsyList;
+}
+function buildListOfSeasons(statsList, numberOfSeasons){
+    var list = new Array();
+    for(var i = 0; i < numberOfSeasons; i++){
+        list[i] = statsList[i].seasonId;
+    }
+    return list;
+
 }
 
 var nbaStats= {
